@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <title>Backward Chaining - Sistem Pakar Wisata</title>
+    <script src="js/db_wisata.js"></script>
+    <style>
+        /* Navbar Styling */
+        .navbar {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s ease;
+            padding: 1rem 2rem;
+        }
+
+        .navbar:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar-brand {
+            color: #fff !important;
+            font-weight: bold;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand img {
+            margin-right: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            color: #f1c40f !important;
+        }
+
+        .navbar-brand:hover img {
+            transform: rotate(360deg);
+        }
+
+        .nav-link {
+            color: #fff !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background-color: #f1c40f;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .nav-link:hover {
+            color: #f1c40f !important;
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            color: #f1c40f !important;
+            font-weight: bold;
+        }
+
+        .navbar-toggler {
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-toggler:hover {
+            transform: scale(1.1);
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        /* Card Styling */
+        .card {
+            border: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            transform: translateY(-5px);
+        }
+
+        /* Form Select */
+        .form-select {
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus {
+            border-color: #f1c40f;
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+        }
+
+        /* Result Item */
+        .result-item {
+            padding: 20px;
+            border-radius: 8px;
+            background: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .result-item:hover {
+            background-color: #e9ecef;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-item p {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .result-item strong {
+            color: #3498db;
+        }
+
+        /* Timeline */
+        .timeline {
+            list-style: none;
+            padding: 0 0 0 20px;
+            position: relative;
+        }
+
+        .timeline li {
+            margin-bottom: 15px;
+            padding-left: 15px;
+            position: relative;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+        }
+
+        .timeline li:hover {
+            color: #f1c40f;
+            transform: translateX(5px);
+        }
+
+        .timeline li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #3498db;
+            font-size: 20px;
+        }
+
+        /* Diagnose Button */
+        .diagnose-btn {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            padding: 12px;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .diagnose-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #f1c40f, #3498db);
+        }
+
+        /* Print Button */
+        .print-btn {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            padding: 12px 30px;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .print-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #f1c40f, #2ecc71);
+        }
+
+        /* Footer Styling */
+        .footer {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: #fff;
+            flex-shrink: 0;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .footer:hover {
+            box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .footer-text {
+            font-style: italic;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .footer-text:hover {
+            color: #f1c40f;
+        }
+
+        .footer-link {
+            color: #fff !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .footer-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background-color: #f1c40f;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .footer-link:hover::after {
+            width: 100%;
+        }
+
+        .footer-link:hover {
+            color: #f1c40f !important;
+            transform: translateY(-2px);
+        }
+
+        /* Layout */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .flex-grow-1 {
+            flex-grow: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand animate__animated animate__fadeInLeft" href="index.html">
+                <img src="home.svg" width="30" height="30" alt="Home"> HOME
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav animate__animated animate__fadeInRight">
+                    <li class="nav-item">
+                        <a class="nav-link" href="forward.html">Forward Chaining</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="backward.html">Backward Chaining</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="wrapper">
+        <main class="container mt-5 flex-grow-1">
+            <h1 class="text-center mb-4 animate__animated animate__bounceIn" style="color: #2c3e50;">Backward Chaining</h1>
+            <form class="col-md-6 mx-auto mb-4" id="backwardForm">
+                <div class="card shadow-sm animate__animated animate__fadeIn">
+                    <div class="card-header" style="background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff;">
+                        <h5 class="mb-0">Pilih Tujuan Wisata</h5>
+                    </div>
+                    <div class="card-body" style="background: #f8f9fa;">
+                        <select name="goal" class="form-select mb-3" id="goalSelect" required>
+                            <option value="">-- Pilih Tujuan --</option>
+                            <!-- Opsi diisi oleh JavaScript -->
+                        </select>
+                        <button type="submit" class="btn diagnose-btn w-100">Tampilkan Kriteria</button>
+                    </div>
+                </div>
+            </form>
+
+            <div id="resultContainer" class="mt-5"></div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer mt-auto py-4 animate__animated animate__fadeInUp">
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="footer-text"><em>© Yefta Bryant Joe Grado</em></span>
+                    <ul class="nav">
+                        <li class="nav-item">
+                            <a class="nav-link footer-link" target="_blank" href="https://blogbugabagi.blogspot.com">
+                                Artificial Intelligence
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Populate tujuan
+        document.addEventListener("DOMContentLoaded", () => {
+            const goalSelect = document.getElementById("goalSelect");
+            dbWisata.tb_tujuan.forEach(t => {
+                goalSelect.innerHTML += `<option value="${t.id}">${t.tujuan}</option>`;
+            });
+        });
+
+        // Backward Chaining Logic
+        document.getElementById("backwardForm").addEventListener("submit", (e) => {
+            e.preventDefault();
+            const goalId = parseInt(document.getElementById("goalSelect").value);
+            const rule = dbWisata.tb_rule.find(r => r.id === goalId);
+            const tujuan = dbWisata.tb_tujuan.find(t => t.id === goalId);
+
+            const premises = Object(rule).filter(k => k.startsWith("W") && rule[k] === 1);
+            const criteriaList = premises.map(p => {
+                const kriteria = dbWisata.tb_kriteria.find(k => k.kode === p);
+                return kriteria ? kriteria.kriteria : p;
+            });
+
+            const resultContainer = document.getElementById("resultContainer");
+            resultContainer.innerHTML = `
+                <div class="card shadow-sm animate__animated animate__fadeInUp">
+                    <div class="card-header" style="background: linear-gradient(135deg, #3498db, #2c3e50); color: #fff;">Kriteria untuk ${tujuan.tujuan}</div>
+                    <div class="card-body" style="background: #f8f9fa;">
+                        <h3 style="color: #3498db;">Tujuan: ${tujuan.tujuan}</h3>
+                        <div class="result-item">
+                            <h5 style="color: #2c3e50;">Kriteria yang Diperlukan:</h5>
+                            <ul class="timeline">
+                                ${criteriaList.map(c => `<li>${c}</li>`).join("")}
+                            </ul>
+                            <p><strong>Info:</strong> ${tujuan.info}</p>
+                            <p><strong>Saran:</strong> ${tujuan.saran}</p>
+                        </div>
+                    </div>
+                    <div class="card-footer" style="background: #ecf0f1;">
+                        <button class="btn print-btn" onclick="window.print()">CETAK</button>
+                    </div>
+                </div>
+            `;
+        });
+    </script>
+</body>
+</html>
