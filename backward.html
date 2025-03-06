@@ -339,40 +339,53 @@
         });
 
         // Backward Chaining Logic
-        document.getElementById("backwardForm").addEventListener("submit", (e) => {
-            e.preventDefault();
-            const goalId = parseInt(document.getElementById("goalSelect").value);
-            const rule = dbWisata.tb_rule.find(r => r.id === goalId);
-            const tujuan = dbWisata.tb_tujuan.find(t => t.id === goalId);
+document.getElementById("backwardForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const goalId = parseInt(document.getElementById("goalSelect").value);
+    const rule = dbWisata.tb_rule.find(r => r.id === goalId);
+    const tujuan = dbWisata.tb_tujuan.find(t => t.id === goalId);
 
-            // Perbaikan: Gunakan Object.keys untuk mendapatkan daftar kunci
-            const premises = Object.keys(rule).filter(k => k.startsWith("W") && rule[k] === 1);
-            const criteriaList = premises.map(p => {
-                const kriteria = dbWisata.tb_kriteria.find(k => k.kode === p);
-                return kriteria ? kriteria.kriteria : p;
-            });
-
-            const resultContainer = document.getElementById("resultContainer");
-            resultContainer.innerHTML = `
-                <div class="card shadow-sm animate__animated animate__fadeInUp">
-                    <div class="card-header" style="background: linear-gradient(135deg, #3498db, #2c3e50); color: #fff;">Kriteria untuk ${tujuan.tujuan}</div>
-                    <div class="card-body" style="background: #f8f9fa;">
-                        <h3 style="color: #3498db;">Tujuan: ${tujuan.tujuan}</h3>
-                        <div class="result-item">
-                            <h5 style="color: #2c3e50;">Kriteria yang Diperlukan:</h5>
-                            <ul class="timeline">
-                                ${criteriaList.map(c => `<li>${c}</li>`).join("")}
-                            </ul>
-                            <p><strong>Info:</strong> ${tujuan.info}</p>
-                            <p><strong>Saran:</strong> ${tujuan.saran}</p>
-                        </div>
-                    </div>
-                    <div class="card-footer" style="background: #ecf0f1;">
-                        <button class="btn print-btn" onclick="window.print()">CETAK</button>
-                    </div>
+    // Tambahkan pengecekan untuk memastikan rule dan tujuan ada
+    if (!rule || !tujuan) {
+        const resultContainer = document.getElementById("resultContainer");
+        resultContainer.innerHTML = `
+            <div class="card shadow-sm animate__animated animate__fadeInUp">
+                <div class="card-body" style="background: #f8f9fa;">
+                    <h3 style="color: #e74c3c;">Error: Tujuan atau aturan tidak ditemukan!</h3>
                 </div>
-            `;
-        });
+            </div>
+        `;
+        return; // Hentikan eksekusi jika tidak ada rule atau tujuan
+    }
+
+    // Lanjutkan jika rule ada
+    const premises = Object.keys(rule).filter(k => k.startsWith("W") && rule[k] === 1);
+    const criteriaList = premises.map(p => {
+        const kriteria = dbWisata.tb_kriteria.find(k => k.kode === p);
+        return kriteria ? kriteria.kriteria : p;
+    });
+
+    const resultContainer = document.getElementById("resultContainer");
+    resultContainer.innerHTML = `
+        <div class="card shadow-sm animate__animated animate__fadeInUp">
+            <div class="card-header" style="background: linear-gradient(135deg, #3498db, #2c3e50); color: #fff;">Kriteria untuk ${tujuan.tujuan}</div>
+            <div class="card-body" style="background: #f8f9fa;">
+                <h3 style="color: #3498db;">Tujuan: ${tujuan.tujuan}</h3>
+                <div class="result-item">
+                    <h5 style="color: #2c3e50;">Kriteria yang Diperlukan:</h5>
+                    <ul class="timeline">
+                        ${criteriaList.map(c => `<li>${c}</li>`).join("")}
+                    </ul>
+                    <p><strong>Info:</strong> ${tujuan.info}</p>
+                    <p><strong>Saran:</strong> ${tujuan.saran}</p>
+                </div>
+            </div>
+            <div class="card-footer" style="background: #ecf0f1;">
+                <button class="btn print-btn" onclick="window.print()">CETAK</button>
+            </div>
+        </div>
+    `;
+});
     </script>
 </body>
 </html>
