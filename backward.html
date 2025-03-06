@@ -292,7 +292,7 @@
     <!-- Main Content -->
     <div class="wrapper">
         <main class="container mt-5 flex-grow-1">
-            <h1 class="text-center mb-4 animate__animated animate__bounceIn" style="color: #2c3e50;">Backward Chaining</h1>
+            <h1 class="text-center mb-4 animate__animated animate__bounceIn" style="color: #2c3e50;">Diagnosa Backward Chaining</h1>
             <form class="col-md-6 mx-auto mb-4" id="backwardForm">
                 <div class="card shadow-sm animate__animated animate__fadeIn">
                     <div class="card-header" style="background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff;">
@@ -345,7 +345,8 @@
             const rule = dbWisata.tb_rule.find(r => r.id === goalId);
             const tujuan = dbWisata.tb_tujuan.find(t => t.id === goalId);
 
-            const premises = Object(rule).filter(k => k.startsWith("W") && rule[k] === 1);
+            // Perbaikan: Gunakan Object.keys untuk mendapatkan daftar kunci
+            const premises = Object.keys(rule).filter(k => k.startsWith("W") && rule[k] === 1);
             const criteriaList = premises.map(p => {
                 const kriteria = dbWisata.tb_kriteria.find(k => k.kode === p);
                 return kriteria ? kriteria.kriteria : p;
